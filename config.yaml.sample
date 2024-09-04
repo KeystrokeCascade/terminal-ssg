@@ -1,0 +1,33 @@
+website: '/var/www/website/'
+hostname: 'box'
+username: 'linux'
+prompt: '{username}@{hostname}:{cwd}$' # {cwd} added at runtime
+ignored:
+  - 'index.html'
+  - '*.css'
+  - '*.js'
+  - 'icon.ico'
+  - 'robots.txt'
+  - '40?.html'
+  - 'autoindex.html'
+  - '/media'
+  - '/redirect'
+  - '.git'
+  - '.gitignore'
+  - 'README.md'
+  - 'LICENSE'
+logo: |- # Needs leading character, will be eaten at runtime
+    .    .--.
+       |o_o |
+       |:_/ |
+      //   \ \
+     (|     | )
+    /'\_   _/`\
+    \___)=(___/
+rootPreamble:
+  - 'Last login: Wed Sep  4 21:09:15 2024 from 10.0.0.1'
+rootLogo: |- # Needs leading character
+    .  TUX_OS
+    {logo}
+rootPostamble:
+  - 'System time is Sat Sep 04 2024 22:49:04'
