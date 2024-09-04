@@ -3,7 +3,8 @@ A static site generator that takes a directory structure and turns it into a pse
 
 ---
 
-Config file parameters:
+## Config File Parameters
+
 | Parameter | Type | Explanation |
 | --- | --- | --- |
 | `website` 		| String 		| Path to the website directory |
@@ -20,3 +21,13 @@ Config file parameters:
 Each key in the yaml file can be used as a templating variable in the file by surrounding it with braces such as `{username}` due to Python's str.format function.
 
 Example provided in `config.yaml.sample`.
+
+## File Display
+
+The kinds of files that will be read and displayed are:
+
+### .txt
+
+### .md
+
+### .html
