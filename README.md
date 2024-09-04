@@ -31,3 +31,5 @@ The kinds of files that will be read and displayed are:
 ### .md
 
 ### .html
+
+Everything else will be listed in the `ls` module unless blacklisted in the config file.
