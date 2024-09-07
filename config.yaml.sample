@@ -1,4 +1,5 @@
-website: '/var/www/website/'
+websiteDir: '/sites/website/'
+url: 'https://example.com'
 hostname: 'box'
 username: 'linux'
 prompt: '{username}@{hostname}:{cwd}$' # {cwd} added at runtime
@@ -11,11 +12,12 @@ ignored:
   - '40?.html'
   - 'autoindex.html'
   - '/media'
-  - '/redirect'
-  - '.git'
+  - '/.git'
   - '.gitignore'
   - 'README.md'
   - 'LICENSE'
+forceDir:
+  - '/dump'
 logo: |- # Needs leading character, will be eaten at runtime
     .    .--.
        |o_o |
@@ -25,9 +27,17 @@ logo: |- # Needs leading character, will be eaten at runtime
     /'\_   _/`\
     \___)=(___/
 rootPreamble:
-  - 'Last login: Wed Sep  4 21:09:15 2024 from 10.0.0.1'
+  - 'Last login: Wed Sep  4 21:09:15 2024 from 192.168.0.1'
 rootLogo: |- # Needs leading character
     .  TUX_OS
     {logo}
 rootPostamble:
   - 'System time is Sat Sep 04 2024 22:49:04'
+rootHeaders:
+embedTitle: '{hostname}:{cwd}'
+embedDesc: 'My website!'
+embedImage: '{url}/icon.png'
+embedColor: '#0040ff'
+txtCommand: 'cat'
+mdCommand: 'cat'
+htmlCommand: 'lynx --dump'
