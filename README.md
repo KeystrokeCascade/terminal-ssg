@@ -3,6 +3,21 @@ A static site generator that takes a directory structure and turns it into a pse
 
 ---
 
+Requires PyYAML, Jinja2, ignorelib and Markdown libraries.
+
+```
+usage: terminal-ssg.py [-h] [-c CONFIG] [-t TEMPLATE]
+
+An SSG for generating a psudo-terminal website
+
+options:
+  -h, --help            show this help message and exit
+  -c CONFIG, --config CONFIG
+                        Path to config.yaml file
+  -t TEMPLATE, --template TEMPLATE
+                        Path to templates folder
+```
+
 ## Config File Parameters
 
 | Parameter | Type | Explanation |
@@ -20,6 +35,7 @@ A static site generator that takes a directory structure and turns it into a pse
 | `rootLogo` 		| String 		| Text-based logo to be displayed on root.  Requires a leading character so whitespace isn't eaten |
 | `rootPostamble` 	| String Array 	| Text that will be displayed after the logo at root.  Each item is a new <p> block |
 | `rootHeaders` 	| String Array 	| Headers that will only be put in the root <head> block |
+| `errorPage` 		| Dict Array 	| Array of dictionaries with keys `error` and `text` to render http error pages |
 | `embedTitle` 		| String 		| Title to be used in embeds |
 | `embedDesc` 		| String 		| Default embed description to be used in the root page |
 | `embedImage` 		| String 		| Image to be displayed in embeds |
@@ -38,9 +54,26 @@ The kinds of files that will be read and displayed are:
 
 ### .txt
 
+Inserted in a `<pre>` tag.
+
 ### .md
 
+Parsed through a markdown parser to html and inserted verbatim without autoescape.
+
 ### .html
+
+Inserted verbatim without autoescape.
+
+### links.yaml
+
+A yaml file containing an array of dictionaries with the keys `name` and `href` to be inserted to allow external links.
+
+e.g.
+
+```yaml
+- name: example
+  href: https://example.com
+```
 
 Everything else will be listed in the `ls` module unless blacklisted in the config file.
 

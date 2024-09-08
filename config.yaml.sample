@@ -34,6 +34,9 @@ rootLogo: |- # Needs leading character
 rootPostamble:
   - 'System time is Sat Sep 04 2024 22:49:04'
 rootHeaders:
+errorPage:
+  - error: '404'
+    text: '<p>Page not found.</p>'
 embedTitle: '{hostname}:{cwd}'
 embedDesc: 'My website!'
 embedImage: '{url}/icon.png'

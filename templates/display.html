@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	{% include 'headers.html' %}
+
+	<body>
+		{% if cwd == '/' %}
+		<!-- Root directory display -->
+		{% for p in rootPreamble %}
+		<p>
+			{{ p }}
+		</p>
+		{% endfor %}
+
+		<pre>
+			{{- rootLogo }}
+		</pre>
+
+		{% for p in rootPostamble %}
+		<p>
+			{{ p }}
+		</p>
+		{% endfor %}
+		{% endif %}
+
+		{% if (not txt and not md and not html and not cwd == '/') %}
+		<!-- Directory-only logo -->
+		<pre>
+			{{- logo }}
+		</pre>
+		{% endif %}
+
+		{% if txt %}
+		<!-- Display text files -->
+		{% for file in txt.keys() %}
+		<h1>
+			{{ prompt }} {{ txtCommand }} {{ file }}
+		</h1>
+		<pre>
+			{{ txt[file] }}
+		</pre>
+		{% endfor %}
+		{% endif %}
+
+		{% if md %}
+		<!-- Display markdown files -->
+		{% for file in md.keys() %}
+		<h1>
+			{{ prompt }} {{ mdCommand }} {{ file }}
+		</h1>
+		{{ md[file] }}
+		{% endfor %}
+		{% endif %}
+
+		<!-- Display directory listing -->
+		<h1>
+			{{ prompt }} ls
+		</h1>
+		<p class="ls">
+		{% if not cwd == '/' %}
+			<a href="../">..</a>
+		{% endif %}
+		{% for link in ls %}
+			<a href="{{ link['href'] }}">{{ link['name'] }}</a>
+		{% endfor %}
+		</p>
+
+		{% if html %}
+		<!-- Display html files -->
+		{% for file in html.keys() %}
+		<h1>
+			{{ prompt }} {{ htmlCommand }} {{ file }}
+		</h1>
+		<p>
+			{{ html[file] }}
+		</p>
+		{% endfor %}
+		{% endif %}
+
+		<!-- Final prompt -->
+		<h1>
+			{{ prompt }}
+		</h1>
+	</body>
+</html>

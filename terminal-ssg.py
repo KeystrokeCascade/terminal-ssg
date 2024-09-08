@@ -1,30 +1,41 @@
 #!/usr/bin/env python3
 '''
 Terminal Static Site Generator
+
+todo: good embed generation, finish when I have built compatable structure
 '''
+import argparse
 import yaml
 import jinja2
 import os
 import ignorelib
+import markdown
+from bs4 import BeautifulSoup
+import re
 
-#todo: make these flags?
+# Flags
+parser = argparse.ArgumentParser(
+	description='An SSG for generating a psudo-terminal website',
+	formatter_class=argparse.RawDescriptionHelpFormatter)
+
+parser.add_argument('-c', '--config', default='config.yaml', help='Path to config.yaml file')
+parser.add_argument('-t', '--template', default='./templates', help='Path to templates folder')
+args = parser.parse_args()
+
+# Constants
 PROGRAM_LOCATION = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-CONFIG_FILE = 'config.yaml'
-TEMPLATE_FOLDER = './templates'
-HEAD_TEMPLATE = 'headers.html'
-ROOT_TEMPLATE = 'root.html'
-DIR_TEMPLATE = 'directory.html'
+CONFIG_FILE = args.config
+TEMPLATE_FOLDER = args.template
 DIS_TEMPLATE = 'display.html'
+ERR_TEMPLATE = 'error.html'
 
 # Open config
 with open(os.path.join(PROGRAM_LOCATION, CONFIG_FILE), 'r', encoding='utf8') as f:
-	config = yaml.safe_load(f)
+	CONFIG = yaml.safe_load(f)
 
-# Config added/edited at runtime
-config['cwd'] = '/'
 # Eat leading character in logos to preserve whitespace
-config['logo'] = config['logo'][1:]
-config['rootLogo'] = config['rootLogo'][1:]
+CONFIG['logo'] = CONFIG['logo'][1:]
+CONFIG['rootLogo'] = CONFIG['rootLogo'][1:]
 
 # Load jinja
 env = jinja2.Environment(
@@ -35,43 +46,135 @@ env = jinja2.Environment(
 
 # Load ignored files/folders
 ig = ignorelib.IgnoreFilterManager.build(
-	os.path.join(PROGRAM_LOCATION, config['websiteDir']),
-	global_patterns=config['ignored'])
+	os.path.join(PROGRAM_LOCATION, CONFIG['websiteDir']),
+	global_patterns=CONFIG['ignored'])
 
 ##
 # Stuff that needs to be done each time
 ##
 
-def render(path):
-	# Get folder and remove ignored files
-	folders, files = next(os.walk(path))[1:]
-	files = [file for file in files if not ig.is_ignored(file)]
-	folders = [folder for folder in folders if not ig.is_ignored(folder)]
+def generate(path):
+	# Set cwd
+	relPath = os.path.relpath(path, os.path.join(PROGRAM_LOCATION, CONFIG['websiteDir']))
+	CONFIG['cwd'] = '/' + relPath.replace('\\', '/').strip('.') # Windows normalisation
 
 	# Apply yaml templates
-	for key in config.keys():
-		try:
-			config[key] = config[key].format(**config)
-		except: # Go into arrays too
-			for i in range(len(config[key])):
-				config[key][i] = config[key][i].format(**config)
+	config = templateConfig()
+
+	# Get folder and remove ignored files
+	folders, files = next(os.walk(path))[1:]
+	files = [file for file in files if not ig.is_ignored(os.path.join(CONFIG['cwd'][1:], file))]
+	folders = [folder for folder in folders if not ig.is_ignored(os.path.join(CONFIG['cwd'][1:], folder))]
+
+	# Don't render if nothing in dir
+	if not folders and not files:
+		return
+
+	# Set embed description for directories
+	if not files and config['cwd'] != '/':
+		config['embedDesc'] = f'Directory Listing for {config["cwd"]}'
+
+	external = []
+	# Disable display for forced-list directories
+	if config['cwd'] not in config['forceDir']:
+		# Put together file displays
+		txtFile, mdFile, htmlFile, yamlFile = ingestFiles(files, path, ['.txt', '.md', '.html', '.yaml'])
+		config['txt'] = txtFile
+		config['md'] = mdFile
+		config['html'] = htmlFile
+
+		# Add external links
+		if 'links.yaml' in yamlFile:
+			f = yaml.safe_load(yamlFile['links.yaml'])
+			if f:
+				external = f
+
+		# Process markdown files
+		for key in config['md'].keys():
+			config['md'][key] = config['md'][key].replace('#', '##') # Demote headers
+			config['md'][key] = markdown.markdown(config['md'][key])
+
+		# Generate embed
+		desc = {**config['md'], **config['html']}
+		if desc:
+			# Use first p as description
+			for key, value in desc.items():
+				if '<p' in value:
+					bs = BeautifulSoup(value, features='html.parser')
+					if bs.p:
+						p = str(bs.p)
+						p = re.sub('<br.?>', '&#x0A;', p)
+						p = re.sub('<.*?>', '', p)
+						config['embedDesc'] = p
+						break
+			# Use first image as embed
+			for key, value in desc.items():
+				if '<img' in value:
+					bs = BeautifulSoup(value, features='html.parser')
+					if bs.img:
+						print(bs.img.href)
+						#config['embedImage'] = ?
+						# FINISH ONCE I HAVE IMAGES
+						break
+
+		# Remove displayed files from display
+		ingested = list(txtFile.keys()) + list(mdFile.keys()) + list(htmlFile.keys()) + list(yamlFile.keys())
+		files = [file for file in files if file not in ingested]
+
+	# Put together ls output
+	folders = [{'name':folder, 'href':folder+'/'} for folder in folders] # Add trailing slash
+	files = [{'name':file, 'href':file} for file in files]
+	ls = folders + files + external
+	config['ls'] = sorted(ls, key=lambda d: d['name'])
 
 	# Render page
-	template = env.get_template(ROOT_TEMPLATE) # figure out how to switch template
-	output = template.render(**config)
+	render(os.path.join(path, 'index.html'), DIS_TEMPLATE, config)
+	print(f'generated {CONFIG["cwd"]}')
 
-	# Write out to file
-	with open(os.path.join(path, 'index.html'), mode='w', encoding='utf8') as f:
+	# Recurse
+	for folder in folders:
+		generate(os.path.join(path, folder['name']))
+
+# Parse the yaml so that template variables are replaced
+# This is kinda cursed and I couldn't figure out a nice way to do it both globally and recursively so it has limited depth
+def templateConfig():
+	config = CONFIG.copy()
+	for key in CONFIG.keys():
+		if isinstance(CONFIG[key], str):
+			config[key] = CONFIG[key].format(**CONFIG)
+		if isinstance(CONFIG[key], list):
+			for i in range(len(CONFIG[key])):
+				if isinstance(CONFIG[key], str):
+					config[key] = CONFIG[key].format(**CONFIG)
+	return config
+
+# Construct an array of dictionaries of the files
+def ingestFiles(files, path, filetypes):
+	output = []
+	for type in filetypes:
+		ingest = [file for file in files if type in file]
+		dict = {}
+		for file in ingest:
+			with open(os.path.join(path, file), 'r', encoding='utf8') as f:
+				contents = f.read()
+			dict[file] = contents
+		output.append(dict)
+	return output
+
+# Render and write the html
+def render(path, template, config):
+	template = env.get_template(template)
+	output = template.render(**config)
+	with open(path, mode='w', encoding='utf8') as f:
 		f.write(output)
 
-def ls():
+# Generate site
+path = os.path.join(PROGRAM_LOCATION, CONFIG['websiteDir'])
+generate(path)
 
-# should these be in one function? cant imagine being called twice
-def txt():
-
-def md():
-
-def html():
-
-path = os.path.join(PROGRAM_LOCATION, config['websiteDir'], '.'+config['cwd'])
-render(path)
+# Generate error pages
+for error in CONFIG['errorPage']:
+	CONFIG['cwd'] = '?' + error['error']
+	CONFIG['error'] = error
+	config = templateConfig()
+	render(os.path.join(path, error['error'] + '.html'), ERR_TEMPLATE, config)

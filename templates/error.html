@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	{% include 'headers.html' %}
+
+	<body>
+		<h1>
+			{{ prompt }} cat {{ error['error'] }}.md
+		</h1>
+		{{ error['text'] }}
+
+		<h1>
+			{{ prompt }} ls
+		</h1>
+		<p class="ls">
+			<a href="/">/</a>
+		</p>
+
+		<h1>
+			{{ prompt }}
+		</h1>
+	</body>
+</html>
