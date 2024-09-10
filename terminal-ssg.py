@@ -117,7 +117,6 @@ def generate(path):
 						if img.startswith('/'):
 							img = config['url'] + img
 						if img.endswith('.png') or img.endswith('.jpeg') or img.endswith('.jpg'):
-							print(img)
 							config['embedImage'] = img
 						break
 
