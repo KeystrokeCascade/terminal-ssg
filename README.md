@@ -18,6 +18,13 @@ options:
                         Path to templates folder
 ```
 
+To get started, copy `config.yaml.sample` into `config.yaml` if you want to use a template.
+
+```
+cp config.yaml.sample config.yaml
+```
+
+
 ## Config File Parameters
 
 | Parameter | Type | Explanation |
