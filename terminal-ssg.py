@@ -91,7 +91,7 @@ def generate(path):
 
 		# Process markdown files
 		for key in config['md'].keys():
-			config['md'][key] = config['md'][key].replace('#', '##') # Demote headers
+			config['md'][key] = config['md'][key].replace('# ', '## ') # Demote headers
 			config['md'][key] = markdown.markdown(config['md'][key])
 
 		# Generate embed
@@ -107,14 +107,17 @@ def generate(path):
 						p = re.sub('<.*?>', '', p)
 						config['embedDesc'] = p
 						break
-			# Use first image as embed
+			# Use first valid image as embed
 			for key, value in desc.items():
 				if '<img' in value:
 					bs = BeautifulSoup(value, features='html.parser')
 					if bs.img:
-						print(bs.img.href)
-						#config['embedImage'] = ?
-						# FINISH ONCE I HAVE IMAGES
+						img = bs.img.attrs['src']
+						if img.startswith('/'):
+							img = config['url'] + img
+						if img.endswith('.png') or img.endswith('.jpeg') or img.endswith('.jpg'):
+							print(img)
+							config['embedImage'] = img
 						break
 
 		# Remove displayed files from display
@@ -152,7 +155,7 @@ def templateConfig():
 def ingestFiles(files, path, filetypes):
 	output = []
 	for type in filetypes:
-		ingest = [file for file in files if type in file]
+		ingest = [file for file in files if file.endswith(type)]
 		dict = {}
 		for file in ingest:
 			with open(os.path.join(path, file), 'r', encoding='utf8') as f:

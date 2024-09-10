@@ -3,7 +3,7 @@ A static site generator that takes a directory structure and turns it into a pse
 
 ---
 
-Requires PyYAML, Jinja2, ignorelib and Markdown libraries.
+Requires PyYAML, Jinja2, ignorelib, Markdown and beautifulsoup4 libraries.
 
 ```
 usage: terminal-ssg.py [-h] [-c CONFIG] [-t TEMPLATE]
@@ -38,7 +38,7 @@ options:
 | `errorPage` 		| Dict Array 	| Array of dictionaries with keys `error` and `text` to render http error pages |
 | `embedTitle` 		| String 		| Title to be used in embeds |
 | `embedDesc` 		| String 		| Default embed description to be used in the root page |
-| `embedImage` 		| String 		| Image to be displayed in embeds |
+| `embedImage` 		| String 		| Default image to be displayed in embeds |
 | `embedColor` 		| String 		| Color to highlight embeds |
 | `txtCommand` 		| String 		| Fictitious command that will preface the display of .txt files |
 | `mdCommand` 		| String 		| Fictitious command that will preface the display of .md files |
