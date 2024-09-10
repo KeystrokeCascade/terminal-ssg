@@ -6,11 +6,12 @@
 		<h1>
 			{{ prompt }} cat {{ error['error'] }}.md
 		</h1>
-		{{ error['text'] }}
+		{{ error['text'] | indent(8) }}
 
 		<h1>
 			{{ prompt }} ls
 		</h1>
+
 		<p class="ls">
 			<a href="/">/</a>
 		</p>

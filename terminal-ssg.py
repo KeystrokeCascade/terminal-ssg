@@ -105,6 +105,7 @@ def generate(path):
 						p = str(bs.p)
 						p = re.sub('<br.?>', '&#x0A;', p)
 						p = re.sub('<.*?>', '', p)
+						p = re.sub('\n', '', p)
 						config['embedDesc'] = p
 						break
 			# Use first valid image as embed
