@@ -2,7 +2,6 @@
 '''
 Terminal Static Site Generator
 
-todo: good embed generation, finish when I have built compatable structure
 '''
 import argparse
 import yaml
@@ -91,7 +90,8 @@ def generate(path):
 
 		# Process markdown files
 		for key in config['md'].keys():
-			config['md'][key] = config['md'][key].replace('# ', '## ') # Demote headers
+			config['md'][key] = re.sub('^#', '##', config['md'][key]) # Demote headers
+			config['md'][key] = re.sub('\n#', '\n##', config['md'][key])
 			config['md'][key] = markdown.markdown(config['md'][key])
 
 		# Generate embed
