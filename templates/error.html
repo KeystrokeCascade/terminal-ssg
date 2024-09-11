@@ -1,23 +1,20 @@
-<!DOCTYPE html>
-<html>
-	{% include 'headers.html' %}
+{% extends "base.html" %}
 
-	<body>
-		<h1>
-			{{ prompt }} cat {{ error['error'] }}.md
-		</h1>
-		{{ error['text'] | indent(8) }}
+{% block content %}
+<h1>
+	{{ prompt }} cat {{ error['error'] }}.md
+</h1>
+{{ error['text'] | indent(8) }}
 
-		<h1>
-			{{ prompt }} ls
-		</h1>
+<h1>
+	{{ prompt }} ls
+</h1>
 
-		<p class="ls">
-			<a href="/">/</a>
-		</p>
+<p class="ls">
+	<a href="/">/</a>
+</p>
 
-		<h1>
-			{{ prompt }}
-		</h1>
-	</body>
-</html>
+<h1>
+	{{ prompt }}
+</h1>
+{% endblock content %}

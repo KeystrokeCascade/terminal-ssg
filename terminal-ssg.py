@@ -25,8 +25,8 @@ args = parser.parse_args()
 PROGRAM_LOCATION = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 CONFIG_FILE = args.config
 TEMPLATE_FOLDER = args.template
-DIS_TEMPLATE = 'display.html'
-ERR_TEMPLATE = 'error.html'
+INDEX_TEMPLATE = 'index.html'
+ERROR_TEMPLATE = 'error.html'
 
 # Open config
 with open(os.path.join(PROGRAM_LOCATION, CONFIG_FILE), 'r', encoding='utf8') as f:
@@ -131,7 +131,7 @@ def generate(path):
 	config['ls'] = sorted(ls, key=lambda d: d['name'])
 
 	# Render page
-	render(os.path.join(path, 'index.html'), DIS_TEMPLATE, config)
+	render(os.path.join(path, 'index.html'), INDEX_TEMPLATE, config)
 	print(f'generated {CONFIG["cwd"]}')
 
 	# Recurse
@@ -168,6 +168,8 @@ def ingestFiles(files, path, filetypes):
 def render(path, template, config):
 	template = env.get_template(template)
 	output = template.render(**config)
+	output = re.sub('    ', '\t', output) # Format output
+	output = re.sub('\n\n*\n', '\n\n', output)
 	with open(path, mode='w', encoding='utf8') as f:
 		f.write(output)
 
@@ -180,4 +182,4 @@ for error in CONFIG['errorPage']:
 	CONFIG['cwd'] = '?' + error['error']
 	CONFIG['error'] = error
 	config = templateConfig()
-	render(os.path.join(path, error['error'] + '.html'), ERR_TEMPLATE, config)
+	render(os.path.join(path, error['error'] + '.html'), ERROR_TEMPLATE, config)

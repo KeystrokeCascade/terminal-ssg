@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html>
 	<head>
 		<title>{{ cwd }}</title>
 		<meta charset="UTF-8">
@@ -10,7 +12,7 @@
 		<meta content="{{ embedTitle }}" property="og:title"/>
 		<meta content="{{ embedDesc }}" property="og:description"/>
 		<meta content="{{ embedImage }}" property="og:image"/>
-		<meta content="{{ embedColor }}" data-react-helmet="true" name="theme-color" />
+		<meta content="{{ embedColor }}" data-react-helmet="true" name="theme-color"/>
 
 		{% if cwd == '/' %}
 		{% for header in rootHeaders %}
@@ -20,3 +22,7 @@
 
 		<script>0</script>
 	</head>
+	<body>
+		{% block content %}{% endblock %}
+	</body>
+</html>

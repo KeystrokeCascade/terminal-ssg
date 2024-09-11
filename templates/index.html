@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html>
-	{% include 'headers.html' %}
+{% extends "base.html" %}
 
-	<body>
+{% block content %}
 		{% if cwd == '/' %}
 		<!-- Root directory display -->
 		{% for p in rootPreamble %}
@@ -17,7 +15,7 @@
 
 		{% for p in rootPostamble %}
 		<p>
-			{{ p | indent(12)}}
+			{{ p | indent(12) }}
 		</p>
 		{% endfor %}
 		{% endif %}
@@ -78,5 +76,4 @@
 		<h1>
 			{{ prompt }}
 		</h1>
-	</body>
-</html>
+{% endblock content %}
