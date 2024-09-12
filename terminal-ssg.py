@@ -168,8 +168,22 @@ def ingestFiles(files, path, filetypes):
 def render(path, template, config):
 	template = env.get_template(template)
 	output = template.render(**config)
-	output = re.sub('    ', '\t', output) # Format output
-	output = re.sub('\n\n*\n', '\n\n', output)
+
+	# Split string around <pre> tags to not format them
+	split = re.split('</?pre>', output)
+	str = split[::2]
+	pre = split[1::2]
+	output = [None]*(len(str)+len(pre))
+	for i in range(len(str)): # Format output
+		str[i] = re.sub('[ ]{4}', '\t', str[i])
+		str[i] = re.sub('\n\n*\n', '\n\n', str[i])
+	for i in range(len(pre)):
+		pre[i] = f'<pre>{pre[i]}</pre>'
+	output[::2] = str
+	output[1::2] = pre
+	output = ''.join(output)
+
+	# Write out
 	with open(path, mode='w', encoding='utf8') as f:
 		f.write(output)
 
