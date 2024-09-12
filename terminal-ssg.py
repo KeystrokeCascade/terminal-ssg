@@ -92,7 +92,7 @@ def generate(path):
 		for key in config['md'].keys():
 			config['md'][key] = re.sub('^#', '##', config['md'][key]) # Demote headers
 			config['md'][key] = re.sub('\n#', '\n##', config['md'][key])
-			config['md'][key] = markdown.markdown(config['md'][key])
+			config['md'][key] = markdown.markdown(config['md'][key], output_format='html')
 
 		# Generate embed
 		desc = {**config['md'], **config['html']}
